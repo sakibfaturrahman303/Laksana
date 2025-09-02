@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use DB;
+use Carbon\Carbon;
 use App\Models\Tool;
 use App\Models\Borrowing;
 use Illuminate\Http\Request;
@@ -30,12 +31,13 @@ class BorrowingController extends Controller
             'tanggal_kembali_rencana' => 'required|date',
             'keperluan' => 'required|string|max:255',
             'keterangan' => 'nullable|string|max:255',
-            
-            // vaalidasi untuk tools yang dipinjam
-           'tools' => 'required|array|min:1', // Harus ada minimal 1 alat
+
+            'tools' => 'required|array|min:1',
             'tools.*.tool_id' => 'required|exists:tools,id',
             'tools.*.jumlah_pinjam' => 'required|integer|min:1',
+            'tools.*.kondisi_awal' => 'required|string|max:255', // tambahan
         ]);
+
 
         
         DB::beginTransaction();
@@ -60,11 +62,13 @@ class BorrowingController extends Controller
 
                 }
 
-                BorrowingDetail::create([
-                    'borrowing_id' => $borrowing->id,
-                    'tool_id' => $tool->id,
-                    'jumlah_pinjam' => $toolData['jumlah_pinjam'],
-                ]);
+              BorrowingDetail::create([
+                'borrowing_id' => $borrowing->id,
+                'tool_id' => $tool->id,
+                'jumlah_pinjam' => $toolData['jumlah_pinjam'],
+                'kondisi_awal' => $toolData['kondisi_awal'], // simpan kondisi awal
+            ]);
+
 
                 // kurangi jumlah tersedia alat
                  $tool->decrement('jumlah_tersedia', $toolData['jumlah_pinjam']);
@@ -80,47 +84,76 @@ class BorrowingController extends Controller
         }
     }
 
-    public function returnTool(Request $request, $id)
-    {
-
-        $validatedData = $request->validate([
-                    'kondisi' => 'required|string|max:255',
-         ]);
-        
-    $borrowing = Borrowing::with('borrowingDetails')->find($id);
+   public function returnTool(Request $request, $id)
+{
+    $borrowing = Borrowing::with('borrowingDetails.tool')->find($id);
 
     if (!$borrowing) {
         return redirect()->route('borrowing.index')->with('error', 'Peminjaman tidak ditemukan.');
     }
 
     // Cek apakah sudah selesai
-    if ($borrowing->status === 'selesai') {
+    if ($borrowing->status === 'selesai' || $borrowing->status === 'terlambat') {
         return redirect()->route('borrowing.index')->with('error', 'Peminjaman sudah dikembalikan.');
     }
 
+    $validatedData = $request->validate([
+        'details' => 'required|array',
+        'details.*.kondisi_akhir' => 'required|string|max:255',
+    ]);
+
     DB::beginTransaction();
     try {
-        // Update status dan tanggal kembali aktual
-        $borrowing->update([
-            'status' => 'selesai',
-            'kondisi' => $validatedData['kondisi'],
-            'tanggal_kembali_aktual' => now(),
-        ]);
+        $tanggalKembaliAktual = Carbon::now();
+        $status = 'selesai';
 
-        // Kembalikan jumlah alat yang dipinjam
-        foreach ($borrowing->borrowingDetails as $detail) {
-            if ($detail->tool) { // pastikan relasi ada
-                $detail->tool->increment('jumlah_tersedia', $detail->jumlah_pinjam);
+        // Pastikan tanggal rencana dalam format Carbon
+        $tanggalKembaliRencana = $borrowing->tanggal_kembali_rencana
+            ? Carbon::parse($borrowing->tanggal_kembali_rencana)
+            : null;
+
+        // cek keterlambatan
+        if ($tanggalKembaliRencana && $tanggalKembaliAktual->gt($tanggalKembaliRencana)) {
+            $status = 'terlambat';
+        }
+
+        // update detail per barang
+        foreach ($validatedData['details'] as $detailId => $data) {
+            $detail = $borrowing->borrowingDetails->where('id', $detailId)->first();
+            if (!$detail) continue;
+
+            $detail->update([
+                'kondisi_akhir' => $data['kondisi_akhir'],
+            ]);
+
+            if ($detail->tool) {
+                if (in_array($data['kondisi_akhir'], ['Baik', 'Rusak Ringan'])) {
+                    // Barang kembali & masih bisa dipakai
+                    $detail->tool->increment('jumlah_tersedia', $detail->jumlah_pinjam);
+                }
+                // Rusak Berat / hilang → stok tidak ditambah
             }
         }
 
+        // update status & tanggal kembali aktual
+        $borrowing->update([
+            'status' => $status,
+            'tanggal_kembali_aktual' => $tanggalKembaliAktual,
+        ]);
+
         DB::commit();
-        return redirect()->back()->with('success', 'Peminjaman berhasil dikembalikan.');
+
+        return redirect()->back()->with(
+            'success',
+            'Peminjaman berhasil dikembalikan' . ($status === 'terlambat' ? ' (TERLAMBAT)' : '') . '.'
+        );
     } catch (\Exception $e) {
         DB::rollBack();
         return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
-    }
+}
+
+
 
 public function edit($id)
 {

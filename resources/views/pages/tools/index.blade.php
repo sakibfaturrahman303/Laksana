@@ -26,7 +26,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($tools as $tool)
+                        @foreach ($tools as $tool)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $tool->nama_alat }}</td>
@@ -49,11 +49,7 @@
                                     </button>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center">Belum ada barang</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -71,6 +67,15 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select name="category_id" class="form-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach ($category as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->nama_kategori }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Nama Alat</label>
                             <input type="text" name="nama_alat" class="form-control" required>
                         </div>
@@ -85,15 +90,6 @@
                         <div class="mb-3">
                             <label class="form-label">Jumlah Tersedia</label>
                             <input type="number" name="jumlah_tersedia" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Kategori</label>
-                            <select name="category_id" class="form-select" required>
-                                <option value="">-- Pilih Kategori --</option>
-                                @foreach ($category as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->nama_kategori }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -126,8 +122,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Merk</label>
-                            <input type="text" name="merk" class="form-control" value="{{ $tool->merk }}"
-                                required>
+                            <input type="text" name="merk" class="form-control" value="{{ $tool->merk }}" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Jumlah Total</label>

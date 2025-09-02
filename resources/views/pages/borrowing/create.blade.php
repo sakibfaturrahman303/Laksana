@@ -112,6 +112,7 @@
                                         <th>Merk</th>
                                         <th>Jumlah Tersedia</th>
                                         <th>Jumlah Pinjam</th>
+                                        <th>Kondisi Awal</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -159,6 +160,7 @@
                                     <th>Nama</th>
                                     <th>Merk</th>
                                     <th>Jumlah Tersedia</th>
+
                                     <th style="width: 80px;">Aksi</th>
                                 </tr>
                             </thead>
@@ -227,7 +229,7 @@
                 let tbody = $('#table-alat tbody');
                 tbody.empty();
                 if (alatDipilih.length === 0) {
-                    tbody.append('<tr><td colspan="7" class="text-center">Belum ada alat dipilih.</td></tr>');
+                    tbody.append('<tr><td colspan="8" class="text-center">Belum ada alat dipilih.</td></tr>');
                 } else {
                     alatDipilih.forEach((alat, idx) => {
                         tbody.append(`
@@ -246,6 +248,10 @@
                             onchange="updateJumlah(${alat.id}, this.value)">
                     </td>
                     <td>
+                        <input type="text" name="tools[${idx}][kondisi_awal]" class="form-control"
+                            placeholder="Masukkan kondisi awal" required>
+                    </td>
+                    <td>
                         <button type="button" class="btn btn-danger btn-sm" onclick="hapusAlat(${alat.id})">Hapus</button>
                     </td>
                 </tr>
@@ -253,6 +259,7 @@
                     });
                 }
             }
+
 
             $(function() {
                 alatDipilih = [];

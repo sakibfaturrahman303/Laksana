@@ -7,7 +7,6 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Laporan Peminjaman & Pengembalian</h5>
                 <div>
-
                     <a href="{{ route('report.export', request()->all()) }}" class="btn btn-success" target="_blank">
                         <i class="bx bx-printer"></i> Export
                     </a>
@@ -61,26 +60,33 @@
                     </thead>
                     <tbody>
                         @foreach ($laporan as $data)
+                            @php
+                                $detail = optional($data->borrowingDetails->first());
+                                $tool = optional($detail->tool);
+                            @endphp
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $data->nama_peminjam ?? '-' }}</td>
-                                <td>
-                                    {{ optional($data->borrowingDetails->first()->tool)->nama_alat ?? '-' }}
-                                </td>
-
-                                <td>
-                                    {{ optional($data->borrowingDetails->first()->tool)->kode_alat ?? '-' }}
-                                </td>
-
+                                <td>{{ $tool->nama_alat ?? '-' }}</td>
+                                <td>{{ $tool->kode_alat ?? '-' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($data->tanggal_pinjam)->format('d F Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($data->tanggal_kembali_aktual)->format('d F Y') }}</td>
+                                <td>{{ $data->tanggal_kembali_aktual ? \Carbon\Carbon::parse($data->tanggal_kembali_aktual)->format('d F Y') : '-' }}
+                                </td>
                                 <td>
-                                    <span
-                                        class="badge 
-                                        {{ $data->status == 'dipinjam' ? 'bg-warning' : 'bg-success' }}">
+                                    @php
+                                        $badgeClass = match ($data->status) {
+                                            'dipinjam' => 'bg-warning',
+                                            'dikembalikan' => 'bg-success',
+                                            'terlambat' => 'bg-danger',
+                                            default => 'bg-secondary',
+                                        };
+                                    @endphp
+
+                                    <span class="badge {{ $badgeClass }}">
                                         {{ ucfirst($data->status) }}
                                     </span>
                                 </td>
+
                             </tr>
                         @endforeach
                     </tbody>

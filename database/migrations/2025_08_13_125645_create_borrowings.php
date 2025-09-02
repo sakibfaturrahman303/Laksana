@@ -20,7 +20,6 @@ return new class extends Migration
             $table->date('tanggal_kembali_aktual')->nullable();
             $table->string('keperluan');
             $table->string('keterangan')->nullable();
-            $table->string('kondisi')->nullable();
             $table->string('status')->default('dipinjam'); // 'dipinjam', 'selesai',
             $table->timestamps();
 

@@ -6,9 +6,6 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Daftar Peminjaman</h5>
-                <a href="{{ route('borrowing.create') }}" type="button" class="btn btn-primary">
-                    <i class="bx bx-plus"></i>Peminjaman
-                </a>
             </div>
 
             <div class="table-responsive text-nowrap">
@@ -17,10 +14,11 @@
                         <tr>
                             <th>No</th>
                             <th>Nama Peminjam</th>
-                            <th>Status</th>
+                            <th>Program</th>
                             <th>Tanggal Pinjam</th>
                             <th>Tanggal Kembali (Rencana)</th>
-                            <th>Tanggal Kembali (Aktual)</th>
+                            <th>Operator</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -29,27 +27,25 @@
                             <tr data-href="{{ route('borrowing.show', $borrowing->id) }}" style="cursor: pointer;">
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $borrowing->nama_peminjam }}</td>
-                                <td>
-                                    <span
-                                        class="badge {{ $borrowing->status == 'dipinjam' ? 'bg-warning' : 'bg-success' }}">
-                                        {{ ucfirst($borrowing->status) }}
-                                    </span>
-                                </td>
+                                <td>{{ $borrowing->keperluan }}</td>
+
                                 <td>{{ \Carbon\Carbon::parse($borrowing->tanggal_pinjam)->format('d F Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($borrowing->tanggal_kembali_rencana)->format('d F Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($borrowing->tanggal_kembali_aktual)->format('d F Y') }}</td>
+                                <td>{{ $borrowing->user->name }}</td>
+                                <td> <span
+                                        class="badge {{ $borrowing->status == 'dipinjam' ? 'bg-warning' : 'bg-success' }}">
+                                        {{ ucfirst($borrowing->status) }}
+                                    </span></td>
                                 <td class="aksi">
-                                    <a class="btn btn-warning btn-sm" href="{{ route('borrowing.edit', $borrowing->id) }}">
-                                        <i class="bx bx-edit"></i>
-                                    </a>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalKembaliPeminjaman{{ $borrowing->id }}">
+                                        <i class="bx bx-check"></i>
+                                    </button>
                                     <a class="btn btn-info btn-sm" target="_blank"
                                         href="{{ route('borrowing.strukPeminjaman', $borrowing->id) }}">
                                         <i class="bx bx-calendar-week"></i>
                                     </a>
-                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalHapusPeminjaman{{ $borrowing->id }}">
-                                        <i class="bx bx-trash"></i>
-                                    </button>
+
                                 </td>
                             </tr>
                         @endforeach
@@ -60,33 +56,49 @@
     </div>
 
     @foreach ($borrowings as $borrowing)
-        <div class="modal fade" id="modalHapusPeminjaman{{ $borrowing->id }}" tabindex="-1"
-            aria-labelledby="modalHapusPeminjamanLabel{{ $borrowing->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <form action="{{ route('borrowing.destroy', $borrowing->id) }}" method="POST" class="modal-content">
+        <div class="modal fade" id="modalKembaliPeminjaman{{ $borrowing->id }}" tabindex="-1"
+            aria-labelledby="modalKembaliPeminjamanLabel{{ $borrowing->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <form action="{{ route('borrowing.return', $borrowing->id) }}" method="POST" class="modal-content">
                     @csrf
-                    @method('DELETE')
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalHapusPeminjamanLabel{{ $borrowing->id }}">
-                            Hapus Peminjaman
+                        <h5 class="modal-title" id="modalKembaliPeminjamanLabel{{ $borrowing->id }}">
+                            Pengembalian Barang - {{ $borrowing->nama_peminjam }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                     </div>
                     <div class="modal-body">
-                        <p>
-                            Apakah Anda yakin ingin menghapus peminjaman
-                            <strong>{{ $borrowing->nama_peminjam }}</strong>
-                            dengan barang berikut?
-                        </p>
-                        <ul>
-                            @foreach ($borrowing->borrowingDetails as $detail)
-                                <li>{{ $detail->tool->nama_alat }} | {{ $detail->jumlah_pinjam }}</li>
-                            @endforeach
-                        </ul>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nama Alat</th>
+                                    <th>Jumlah Pinjam</th>
+                                    <th>Kondisi Akhir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($borrowing->borrowingDetails as $detail)
+                                    <tr>
+                                        <td>{{ $detail->tool->nama_alat }}</td>
+                                        <td>{{ $detail->jumlah_pinjam }}</td>
+                                        <td>
+                                            <select name="details[{{ $detail->id }}][kondisi_akhir]" class="form-select"
+                                                required>
+                                                <option value="" disabled selected>-- Pilih Kondisi --</option>
+                                                <option value="Baik">Baik</option>
+                                                <option value="Rusak Ringan">Rusak Ringan</option>
+                                                <option value="Rusak Berat">Rusak Berat</option>
+                                                <option value="Hilang">Hilang</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        <button type="submit" class="btn btn-primary">Kembalikan</button>
                     </div>
                 </form>
             </div>

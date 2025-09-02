@@ -60,7 +60,8 @@
                                 <th>Merk</th>
                                 <th>Jumlah Dipinjam</th>
                                 <th>Pengembalian</th>
-                                <th>Kondisi</th>
+                                <th>Kondisi Awal</th>
+                                <th>Kondisi Akhir</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,7 +74,8 @@
                                     <td>{{ $detail->jumlah_pinjam }}</td>
                                     <td>{{ \Carbon\Carbon::parse($borrowingDetails->tanggal_kembali_aktual)->format('d F Y') }}
                                     </td>
-                                    <td>{{ $detail->borrowing->kondisi }}</td>
+                                    <td>{{ $detail->kondisi_awal }}</td>
+                                    <td>{{ $detail->kondisi_akhir }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -87,34 +89,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalKembaliPeminjaman" tabindex="-1" aria-labelledby="modalKembaliPeminjaman"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <form action="{{ route('borrowing.return', $borrowingDetails->id) }}" method="POST" class="modal-content">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalKembaliPeminjaman">Pengembalian Barang</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="kondisi" class="form-label">Kondisi Barang</label>
-                        <select name="kondisi" id="kondisi" class="form-select" required>
-                            <option value="" disabled selected>-- Pilih Kondisi --</option>
-                            <option value="Baik">Baik</option>
-                            <option value="Rusak Ringan">Rusak Ringan</option>
-                            <option value="Rusak Berat">Rusak Berat</option>
-                            <option value="Hilang">Hilang</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Kembalikan</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
 
 
     @push('scripts')

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('borrowing_id');
             $table->unsignedBigInteger('tool_id');
             $table->integer('jumlah_pinjam');
+            $table->string('kondisi_awal')->nullable();
+            $table->string('kondisi_akhir')->nullable();
             $table->timestamps();
 
             $table->foreign('borrowing_id')->references('id')->on('borrowings')->onDelete('cascade');

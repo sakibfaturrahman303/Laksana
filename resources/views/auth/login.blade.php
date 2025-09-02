@@ -1,32 +1,54 @@
 @extends('auth.layouts.app')
 
 @section('content')
+    <style>
+        .logo-small {
+            height: 120px;
+            /* tinggi logo */
+            width: auto;
+            /* biar proporsional */
+            object-fit: contain;
+        }
+
+        .logo-separator {
+            font-size: 20px;
+            font-weight: bold;
+            color: #6b7280;
+        }
+    </style>
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">
             <div class="authentication-inner">
                 <div class="card">
                     <div class="card-body">
                         <div class="app-brand justify-content-center mb-4">
-                            <a href="{{ url('/') }}" class="app-brand-link gap-2">
+                            <a href="{{ url('/') }}" class="app-brand-link gap-3">
+                                <!-- Logo TVRI -->
+                                <img src="{{ asset('assets/img/tvri.png') }}" alt="Logo TVRI" class="logo-small">
+                                <span class="logo-separator">|</span>
 
-                                <span class="app-brand-text demo text-body fw-bolder">{{ config('app.name') }}</span>
+                                <!-- Logo Aplikasi -->
+                                <img src="{{ asset('assets/img/laksana.png') }}" alt="Logo App" class="logo-small">
                             </a>
                         </div>
+
 
                         <h4 class="mb-2">Selamat Datang</h4>
                         <p class="mb-4">Di Website Layanan Akses Sistem Peminjaman Alat!</p>
 
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-
                             <!-- Email -->
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input id="email" type="email"
-                                    class="form-control @error('email') is-invalid @enderror" name="email"
-                                    value="{{ old('email') }}" required autofocus>
-                                @error('email')
-                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                <label for="email" class="form-label">Email Atau Username</label>
+                                <input id="login" type="text"
+                                    class="form-control @error('login') is-invalid @enderror" name="login"
+                                    value="{{ old('login') }}" required autofocus>
+
+                                @error('login')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
                                 @enderror
                             </div>
 
@@ -72,4 +94,24 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (session('success'))
+                    showToast('success', '{{ session('success') }}', 'Sukses');
+                @endif
+
+                @if (session('error'))
+                    showToast('error', '{{ session('error') }}', 'Error');
+                @endif
+
+                @if ($errors->any())
+                    @foreach ($errors->all() as $error)
+                        showToast('error', '{{ $error }}', 'Validasi');
+                    @endforeach
+                @endif
+            });
+        </script>
+    @endpush
 @endsection

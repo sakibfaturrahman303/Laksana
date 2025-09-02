@@ -56,6 +56,46 @@
 
     <!-- Main JS -->
     <script src="{{ secure_asset('assets/js/main.js') }}"></script>
+
+    <script>
+        function showToast(type = 'info', message = '', title = '') {
+            const typeColors = {
+                success: 'bg-success text-white',
+                error: 'bg-danger text-white',
+                warning: 'bg-warning text-dark',
+                info: 'bg-primary text-white'
+            };
+
+            const toastColor = typeColors[type] || typeColors.info;
+
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center border-0 ${toastColor}`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+
+            toastEl.innerHTML = `
+                <div class="toast-header">
+                    <i class="bx bx-bell me-2"></i>
+                    <strong class="me-auto">${title || type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+
+            document.getElementById('toast-container').appendChild(toastEl);
+
+            const toast = new bootstrap.Toast(toastEl, {
+                delay: 3000
+            });
+            toast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+    </script>
+    @stack('scripts')
 </body>
 
 </html>

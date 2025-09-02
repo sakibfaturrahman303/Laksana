@@ -48,7 +48,8 @@
                                 <th>Merk</th>
                                 <th>Jumlah Dipinjam</th>
                                 <th>Pengembalian</th>
-                                <th>Kondisi</th>
+                                <th>Kondisi Awal</th>
+                                <th>Kondisi Akhir</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,7 +62,8 @@
                                     <td>{{ $detail->jumlah_pinjam }}</td>
                                     <td>{{ \Carbon\Carbon::parse($borrowingDetails->tanggal_kembali_aktual)->format('d F Y') }}
                                     </td>
-                                    <td>{{ $detail->borrowing->kondisi }}</td>
+                                    <td>{{ $detail->kondisi_awal }}</td>
+                                    <td>{{ $detail->kondisi_akhir }}</td>
                                 </tr>
                             @empty
                                 <tr>
