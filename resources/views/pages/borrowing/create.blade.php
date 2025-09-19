@@ -33,8 +33,6 @@
                 <div class="card mb-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Informasi Peminjam</h5>
-                        <a href="{{ route('borrowing.index') }}" class="btn btn-secondary"><i
-                                class="bx bx-arrow-back"></i></a>
                     </div>
                     <div class="card-body mt-3">
                         <div class="mb-3 row">
@@ -80,16 +78,6 @@
                                 @enderror
                             </div>
                         </div>
-
-                        <div class="mb-3 row">
-                            <label class="col-md-3 col-form-label">Keterangan</label>
-                            <div class="col-md-9">
-                                <textarea name="keterangan" class="form-control" rows="2" placeholder="Tambahkan keterangan (opsional)">{{ old('keterangan') }}</textarea>
-                                @error('keterangan')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -108,14 +96,16 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Kode</th>
-                                        <th>Nama</th>
                                         <th>Merk</th>
+                                        <th>Nama</th>
                                         <th>Jumlah Tersedia</th>
                                         <th>Jumlah Pinjam</th>
                                         <th>Kondisi Awal</th>
+                                        <th>Keterangan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     <tr>
                                         <td colspan="5" class="text-center">Belum ada alat dipilih.</td>
@@ -152,15 +142,31 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
+                        <!-- Search & Filter sejajar -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <!-- Search DataTable (otomatis dipindahkan lewat JS) -->
+                            <div id="customSearch"></div>
+
+                            <!-- Filter Dropdown -->
+                            <div>
+                                <label for="filterKategori" class="me-2 fw-bold">Kategori:</label>
+                                <select id="filterKategori" class="form-select d-inline-block w-auto">
+                                    <option value="">-- Semua Kategori --</option>
+                                    @foreach ($category as $cat)
+                                        <option value="{{ $cat->nama_kategori }}">{{ $cat->nama_kategori }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                         <table id="dataTable" class="table table-striped table-bordered align-middle w-100">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Kode</th>
-                                    <th>Nama</th>
+                                    <th>Kategori</th>
                                     <th>Merk</th>
-                                    <th>Jumlah Tersedia</th>
-
+                                    <th>Nama</th>
+                                    <th>JML</th>
                                     <th style="width: 80px;">Aksi</th>
                                 </tr>
                             </thead>
@@ -168,9 +174,9 @@
                                 @foreach ($tools as $tool)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $tool->kode_alat }}</td>
-                                        <td>{{ $tool->nama_alat }}</td>
+                                        <td>{{ $tool->category->nama_kategori }}</td>
                                         <td>{{ $tool->merk }}</td>
+                                        <td>{{ $tool->nama_alat }}</td>
                                         <td>{{ $tool->jumlah_tersedia }}</td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm"
@@ -229,7 +235,7 @@
                 let tbody = $('#table-alat tbody');
                 tbody.empty();
                 if (alatDipilih.length === 0) {
-                    tbody.append('<tr><td colspan="8" class="text-center">Belum ada alat dipilih.</td></tr>');
+                    tbody.append('<tr><td colspan="9" class="text-center">Belum ada alat dipilih.</td></tr>');
                 } else {
                     alatDipilih.forEach((alat, idx) => {
                         tbody.append(`
@@ -252,6 +258,10 @@
                             placeholder="Masukkan kondisi awal" required>
                     </td>
                     <td>
+                        <input type="text" name="tools[${idx}][keterangan_awal]" class="form-control"
+                            placeholder="Masukkan keterangan (opsional)">
+                    </td>
+                    <td>
                         <button type="button" class="btn btn-danger btn-sm" onclick="hapusAlat(${alat.id})">Hapus</button>
                     </td>
                 </tr>
@@ -259,8 +269,6 @@
                     });
                 }
             }
-
-
             $(function() {
                 alatDipilih = [];
                 renderTableAlat();
@@ -287,20 +295,38 @@
 
         <script>
             $(document).ready(function() {
-                $('#dataTable').DataTable({
-                    responsive: true,
+                var table = $('#dataTable').DataTable({
+                    responsive: false,
+                    scrollX: true,
+                    autoWidth: false,
                     paging: false,
-                    info: false, // Hilangkan "Showing 1 to ..."
-                    ordering: false, // Hilangkan sorting kolom
-                    searching: true, // Tetap ada search
-                    lengthChange: true, // Dropdown jumlah data
+                    info: false,
+                    ordering: false,
+                    searching: true,
+                    lengthChange: true,
                     language: {
                         "search": "Cari Alat:",
-                        "emptyTable": "Tidak ada riwayat peminjaman",
+                        "emptyTable": "Belum ada data",
                         "zeroRecords": "Tidak ada data yang cocok ditemukan",
                         "lengthMenu": "Tampilkan _MENU_ data"
                     },
-                    dom: '<"top"lf>t'
+                    dom: '<"top"f>t'
+                });
+
+                // Pindahkan search ke div custom
+                $('#customSearch').html($('.dataTables_filter'));
+
+                // Filter kategori
+                $('#filterKategori').on('change', function() {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    table.column(1)
+                        .search(val ? '^' + val + '$' : '', true, false)
+                        .draw();
+                });
+
+                // 🔧 Fix header tabel mengecil di dalam modal
+                $('#modalAlat').on('shown.bs.modal', function() {
+                    table.columns.adjust().draw();
                 });
             });
         </script>

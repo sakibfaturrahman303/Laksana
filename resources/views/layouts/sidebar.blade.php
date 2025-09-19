@@ -92,17 +92,16 @@
         </li>
 
         <!-- Alat -->
-        @if (auth()->user()->role == 'admin')
-            <li class="menu-header small text-uppercase">
-                <span class="menu-header-text">Manajemen Alat</span>
-            </li>
-            <li class="menu-item {{ request()->routeIs('category.index') ? 'active' : '' }}">
-                <a href="{{ route('category.index') }}" class="menu-link">
-                    <i class="menu-icon bx bx-grid-alt"></i>
-                    <div data-i18n="Data Kategori">Data Kategori</div>
-                </a>
-            </li>
-        @endif
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Manajemen Alat</span>
+        </li>
+        <li class="menu-item {{ request()->routeIs('category.index') ? 'active' : '' }}">
+            <a href="{{ route('category.index') }}" class="menu-link">
+                <i class="menu-icon bx bx-grid-alt"></i>
+                <div data-i18n="Data Kategori">Data Kategori</div>
+            </a>
+        </li>
 
         <li class="menu-item {{ request()->routeIs('tools.index') ? 'active' : '' }}">
             <a href="{{ route('tools.index') }}" class="menu-link">

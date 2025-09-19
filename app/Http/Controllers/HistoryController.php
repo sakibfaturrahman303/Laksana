@@ -8,18 +8,29 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class HistoryController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of all completed borrowing records.
+     *
+     * @return \Illuminate\View\View
+     */
+   public function index()
     {
-        $borrowings = Borrowing::with('borrowingDetails.tool')->where('status','selesai')->get();
+        $borrowings = Borrowing::with('borrowingDetails.tool')->whereIn('status', ['selesai', 'terlambat'])->get();
         return view('pages.history.index', compact('borrowings'));
     }
 
-        public function detail($id)
+
+    /**
+     * Display the details for a specific borrowing record.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function detail($id)
     {
-        $borrowingDetails = Borrowing::with('borrowingDetails.tool')->findOrFail($id);
+        $borrowingDetails = Borrowing::with('borrowingDetails.tool')
+            ->findOrFail($id);
+
         return view('pages.history.toolHistory', compact('borrowingDetails'));
     }
-
-
-
 }

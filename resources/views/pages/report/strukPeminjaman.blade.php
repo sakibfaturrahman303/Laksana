@@ -66,7 +66,7 @@
         <p><strong>Tanggal Kembali (Rencana) :</strong>
             {{ \Carbon\Carbon::parse($borrowing->tanggal_kembali_rencana)->format('d/m/Y') }}</p>
         <p><strong>Nama Program :</strong> {{ $borrowing->keperluan }}</p>
-        <p><strong>Operator Peralatan :</strong> {{ $borrowing->user->name ?? '-' }}</p>
+        <p><strong>Operator Peralatan :</strong> {{ $borrowing->operatorPinjam->name ?? '-' }}</p>
     </div>
 
     <table>
@@ -76,6 +76,7 @@
                 <th>NAMA BARANG</th>
                 <th>MERK</th>
                 <th>JUMLAH</th>
+                <th>KONDISI AWAL</th>
                 <th>KETERANGAN</th>
             </tr>
         </thead>
@@ -86,7 +87,8 @@
                     <td>{{ $detail->tool->nama_alat ?? '-' }}</td>
                     <td>{{ $detail->tool->merk ?? '-' }}</td>
                     <td>{{ $detail->jumlah_pinjam }}</td>
-                    <td>{{ $borrowing->keterangan ?? '-' }}</td>
+                    <td>{{ $detail->kondisi_awal ?? '-' }}</td>
+                    <td>{{ $detail->keterangan_awal ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>

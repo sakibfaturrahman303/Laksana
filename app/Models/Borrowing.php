@@ -9,20 +9,24 @@ class Borrowing extends Model
     protected $table = 'borrowings';
     protected $primaryKey = 'id';
    protected $fillable = [
-        'user_id',
+        'operator_pinjam',
+        'operator_kembali',
         'nama_peminjam',
         'tanggal_pinjam',
         'keperluan',
-        'keterangan',
-        'kondisi',
+        'catatan',  
         'tanggal_kembali_rencana',
         'tanggal_kembali_aktual',
         'status',
     ];
 
-    public function user()
+    public function operatorPinjam()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class,'operator_pinjam');
+    }
+    public function operatorKembali()
+    {
+        return $this->belongsTo(User::class,'operator_kembali');
     }
 
     public function borrowingDetails()

@@ -5,23 +5,36 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Data Barang</h5>
+                <h5 class="mb-0">Data Alat</h5>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
                     <i class="bx bx-plus"></i> Tambah Barang
                 </button>
             </div>
 
-            <div class="table-responsive text-nowrap">
+            <div class="table-responsive text-nowrap p-3">
+                <!-- Search & Filter -->
+                <div class="d-flex justify-content-between mb-2">
+                    <div id="customSearch"></div>
+                    <div>
+                        <select id="filterKategori" class="form-select w-auto">
+                            <option value="">-- Semua Kategori --</option>
+                            @foreach ($category as $cat)
+                                <option value="{{ $cat->nama_kategori }}">{{ $cat->nama_kategori }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
                 <table id="dataTable" class="table table-striped">
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama Alat</th>
-                            <th>Kode Alat</th>
+                            <th>Kategori</th>
                             <th>Merk</th>
+                            <th>Kode Alat</th>
+                            <th>Nama Alat</th>
                             <th>Jumlah Total</th>
                             <th>Jumlah Tersedia</th>
-                            <th>Kategori</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -29,12 +42,12 @@
                         @foreach ($tools as $tool)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $tool->nama_alat }}</td>
-                                <td>{{ $tool->kode_alat }}</td>
+                                <td>{{ $tool->category->nama_kategori ?? '-' }}</td>
                                 <td>{{ $tool->merk }}</td>
+                                <td>{{ $tool->kode_alat }}</td>
+                                <td>{{ $tool->nama_alat }}</td>
                                 <td>{{ $tool->jumlah_total }}</td>
                                 <td>{{ $tool->jumlah_tersedia }}</td>
-                                <td>{{ $tool->category->nama_kategori ?? '-' }}</td>
                                 <td>
                                     <!-- Tombol Edit -->
                                     <button type="button" class="btn btn-warning" data-bs-toggle="modal"
@@ -76,12 +89,12 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Nama Alat</label>
-                            <input type="text" name="nama_alat" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label">Merk</label>
                             <input type="text" name="merk" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Alat</label>
+                            <input type="text" name="nama_alat" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Jumlah Total</label>
@@ -116,13 +129,25 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Nama Alat</label>
-                            <input type="text" name="nama_alat" class="form-control" value="{{ $tool->nama_alat }}"
-                                required>
+                            <label class="form-label">Kategori</label>
+                            <select name="category_id" class="form-select" required>
+                                @foreach ($category as $cat)
+                                    <option value="{{ $cat->id }}"
+                                        {{ $cat->id == $tool->category_id ? 'selected' : '' }}>
+                                        {{ $cat->nama_kategori }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Merk</label>
-                            <input type="text" name="merk" class="form-control" value="{{ $tool->merk }}" required>
+                            <input type="text" name="merk" class="form-control" value="{{ $tool->merk }}"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Alat</label>
+                            <input type="text" name="nama_alat" class="form-control" value="{{ $tool->nama_alat }}"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Jumlah Total</label>
@@ -134,17 +159,7 @@
                             <input type="number" name="jumlah_tersedia" class="form-control"
                                 value="{{ $tool->jumlah_tersedia }}" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Kategori</label>
-                            <select name="category_id" class="form-select" required>
-                                @foreach ($category as $cat)
-                                    <option value="{{ $cat->id }}"
-                                        {{ $cat->id == $tool->category_id ? 'selected' : '' }}>
-                                        {{ $cat->nama_kategori }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
@@ -179,41 +194,35 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                @if (session('success'))
-                    showToast('success', '{{ session('success') }}', 'Sukses');
-                @endif
-
-                @if (session('error'))
-                    showToast('error', '{{ session('error') }}', 'Error');
-                @endif
-
-                @if ($errors->any())
-                    @foreach ($errors->all() as $error)
-                        showToast('error', '{{ $error }}', 'Validasi');
-                    @endforeach
-                @endif
-            });
-        </script>
-
-        <script>
             $(document).ready(function() {
-                $('#dataTable').DataTable({
-                    responsive: true,
-                    paging: false, // Hilangkan pagination bawaan
-                    info: false, // Hilangkan "Showing 1 to ..."
-                    ordering: false, // Hilangkan sorting kolom
-                    searching: true, // Tetap ada search
-                    lengthChange: true, // Dropdown jumlah data
+                var table = $('#dataTable').DataTable({
+                    responsive: false,
+                    scrollX: true,
+                    autoWidth: false,
+                    paging: false,
+                    info: false,
+                    ordering: false,
+                    searching: true,
+                    lengthChange: true,
                     language: {
-                        "search": "Cari Barang:",
-                        "emptyTable": "Belum ada barang tersedia",
+                        "search": "Cari Alat:",
+                        "emptyTable": "Belum ada data",
                         "zeroRecords": "Tidak ada data yang cocok ditemukan",
                         "lengthMenu": "Tampilkan _MENU_ data"
                     },
-                    dom: '<"top"lf>t'
+                    dom: '<"top"f>t'
+                });
+
+                $('#customSearch').html($('.dataTables_filter'));
+
+                $('#filterKategori').on('change', function() {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    table.column(1)
+                        .search(val ? '^' + val + '$' : '', true, false)
+                        .draw();
                 });
             });
         </script>
     @endpush
+
 @endsection

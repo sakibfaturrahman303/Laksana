@@ -3,17 +3,12 @@
 
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-
-
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-
-                <a href="{{ route('borrowing.index') }}" class="btn btn-secondary">
+                <a href="{{ route('history.index') }}" class="btn btn-secondary">
                     <i class="bx bx-arrow-back"></i>
                 </a>
-
                 <h5 class="mb-0 text-center flex-grow-1">Informasi Detail Peminjam</h5>
-
             </div>
         </div>
 
@@ -32,15 +27,17 @@
                         {{ \Carbon\Carbon::parse($borrowingDetails->tanggal_kembali_aktual)->format('d F Y') }}
                     </p>
                 @endif
+                <p><strong>Operator Peminjam:</strong> {{ $borrowingDetails->operatorPinjam->name }}</p>
+                @if ($borrowingDetails->operatorKembali)
+                    <p><strong>Operator Pengembali:</strong> {{ $borrowingDetails->operatorKembali->name }}</p>
+                @endif
+
             </div>
 
             <div class="card-body">
-
-
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped">
                         <thead>
-
                             <tr>
                                 <th>No</th>
                                 <th>Kode Alat</th>
@@ -50,6 +47,8 @@
                                 <th>Pengembalian</th>
                                 <th>Kondisi Awal</th>
                                 <th>Kondisi Akhir</th>
+                                <th>Keterangan Awal</th>
+                                <th>Keterangan Akhir</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,14 +59,19 @@
                                     <td>{{ $detail->tool->nama_alat }}</td>
                                     <td>{{ $detail->tool->merk }}</td>
                                     <td>{{ $detail->jumlah_pinjam }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($borrowingDetails->tanggal_kembali_aktual)->format('d F Y') }}
+                                    <td>
+                                        {{ $borrowingDetails->tanggal_kembali_aktual
+                                            ? \Carbon\Carbon::parse($borrowingDetails->tanggal_kembali_aktual)->format('d F Y')
+                                            : '-' }}
                                     </td>
                                     <td>{{ $detail->kondisi_awal }}</td>
-                                    <td>{{ $detail->kondisi_akhir }}</td>
+                                    <td>{{ $detail->kondisi_akhir ?? '-' }}</td>
+                                    <td>{{ $detail->keterangan_awal ?? '-' }}</td>
+                                    <td>{{ $detail->keterangan_akhir ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Tidak ada detail peminjaman</td>
+                                    <td colspan="10" class="text-center">Tidak ada detail peminjaman</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -76,10 +80,20 @@
             </div>
         </div>
 
+        {{-- Card Catatan --}}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">Catatan Peminjaman</h6>
+            </div>
+            <div class="card-body">
+                @if ($borrowingDetails->catatan)
+                    <p>{{ $borrowingDetails->catatan }}</p>
+                @else
+                    <p class="text-muted fst-italic">Tidak ada catatan.</p>
+                @endif
+            </div>
+        </div>
     </div>
-
-
-
 
     @push('scripts')
         <script>

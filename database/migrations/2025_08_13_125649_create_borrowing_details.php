@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('jumlah_pinjam');
             $table->string('kondisi_awal')->nullable();
             $table->string('kondisi_akhir')->nullable();
+            $table->text('keterangan_awal')->nullable();
+            $table->text('keterangan_akhir')->nullable();
             $table->timestamps();
 
             $table->foreign('borrowing_id')->references('id')->on('borrowings')->onDelete('cascade');

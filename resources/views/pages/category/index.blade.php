@@ -156,15 +156,17 @@
         <script>
             $(document).ready(function() {
                 $('#dataTable').DataTable({
-                    responsive: true,
-                    paging: false, // Hilangkan pagination bawaan
-                    info: false, // Hilangkan "Showing 1 to ..."
-                    ordering: false, // Hilangkan sorting kolom
-                    searching: true, // Tetap ada search
-                    lengthChange: true, // Dropdown jumlah data
+                    responsive: false, // jangan collapse kolom
+                    scrollX: true, // aktifkan scroll horizontal kalau kolom kebanyakan
+                    autoWidth: false, // biar width menyesuaikan konten
+                    paging: false, // hilangkan pagination
+                    info: false, // hilangkan "Showing 1 to ..."
+                    ordering: false, // nonaktifkan sorting
+                    searching: true, // search tetap ada
+                    lengthChange: true, // dropdown jumlah data
                     language: {
-                        "search": "Cari Riwayat:",
-                        "emptyTable": "Tidak ada riwayat peminjaman",
+                        "search": "Cari Peminjam:",
+                        "emptyTable": "Belum ada peminjaman",
                         "zeroRecords": "Tidak ada data yang cocok ditemukan",
                         "lengthMenu": "Tampilkan _MENU_ data"
                     },

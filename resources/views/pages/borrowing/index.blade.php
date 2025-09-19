@@ -7,7 +7,6 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Daftar Peminjaman</h5>
             </div>
-
             <div class="table-responsive text-nowrap">
                 <table class="table table-striped" id="dataTable">
                     <thead>
@@ -17,7 +16,7 @@
                             <th>Program</th>
                             <th>Tanggal Pinjam</th>
                             <th>Tanggal Kembali (Rencana)</th>
-                            <th>Operator</th>
+                            <th>Operator Peminjaman</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -31,7 +30,7 @@
 
                                 <td>{{ \Carbon\Carbon::parse($borrowing->tanggal_pinjam)->format('d F Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($borrowing->tanggal_kembali_rencana)->format('d F Y') }}</td>
-                                <td>{{ $borrowing->user->name }}</td>
+                                <td>{{ $borrowing->operatorPinjam->name }}</td>
                                 <td> <span
                                         class="badge {{ $borrowing->status == 'dipinjam' ? 'bg-warning' : 'bg-success' }}">
                                         {{ ucfirst($borrowing->status) }}
@@ -74,6 +73,7 @@
                                     <th>Nama Alat</th>
                                     <th>Jumlah Pinjam</th>
                                     <th>Kondisi Akhir</th>
+                                    <th>Keterangan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -84,17 +84,44 @@
                                         <td>
                                             <select name="details[{{ $detail->id }}][kondisi_akhir]" class="form-select"
                                                 required>
-                                                <option value="" disabled selected>-- Pilih Kondisi --</option>
-                                                <option value="Baik">Baik</option>
-                                                <option value="Rusak Ringan">Rusak Ringan</option>
-                                                <option value="Rusak Berat">Rusak Berat</option>
-                                                <option value="Hilang">Hilang</option>
+                                                <option value="" disabled
+                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) ? '' : 'selected' }}>
+                                                    -- Pilih Kondisi --
+                                                </option>
+                                                <option value="Baik"
+                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Baik' ? 'selected' : '' }}>
+                                                    Baik
+                                                </option>
+                                                <option value="Rusak Ringan"
+                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Rusak Ringan' ? 'selected' : '' }}>
+                                                    Rusak Ringan
+                                                </option>
+                                                <option value="Rusak Berat"
+                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Rusak Berat' ? 'selected' : '' }}>
+                                                    Rusak Berat
+                                                </option>
+                                                <option value="Hilang"
+                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Hilang' ? 'selected' : '' }}>
+                                                    Hilang
+                                                </option>
                                             </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="details[{{ $detail->id }}][keterangan_akhir]"
+                                                class="form-control" placeholder="Keterangan tambahan"
+                                                value="{{ old("details.$detail->id.keterangan_akhir", $detail->keterangan_akhir) }}">
                                         </td>
                                     </tr>
                                 @endforeach
+
                             </tbody>
                         </table>
+
+                        <div class="mb-3">
+                            <label for="catatan" class="form-label">Catatan Pengembalian</label>
+                            <textarea name="catatan" id="catatan" class="form-control" rows="3"
+                                placeholder="Tambahkan catatan tentang pengembalian"></textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
@@ -105,12 +132,12 @@
         </div>
     @endforeach
 
+
     @push('scripts')
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 document.querySelectorAll("tr[data-href]").forEach(function(row) {
                     row.addEventListener("click", function(e) {
-                        // Cegah klik di kolom aksi (td.aksi atau tombol/link di dalamnya)
                         if (!e.target.closest(".aksi")) {
                             window.location = this.dataset.href;
                         }
@@ -139,19 +166,21 @@
         <script>
             $(document).ready(function() {
                 $('#dataTable').DataTable({
-                    responsive: true,
-                    paging: false, // Hilangkan pagination bawaan
-                    info: false, // Hilangkan "Showing 1 to ..."
-                    ordering: false, // Hilangkan sorting kolom
-                    searching: true, // Tetap ada search
-                    lengthChange: true, // Dropdown jumlah data
+                    responsive: false,
+                    scrollX: true,
+                    autoWidth: false,
+                    paging: false,
+                    info: false,
+                    ordering: false, // nonaktifkan sorting
+                    searching: true, // search tetap ada
+                    lengthChange: true,
                     language: {
                         "search": "Cari Peminjam:",
                         "emptyTable": "Belum ada peminjaman",
                         "zeroRecords": "Tidak ada data yang cocok ditemukan",
                         "lengthMenu": "Tampilkan _MENU_ data"
                     },
-                    dom: '<"top"lf>t' // Hanya tampilkan length dropdown (l) + filter/search (f) + tabel (t)
+                    dom: '<"top"lf>t'
                 });
             });
         </script>

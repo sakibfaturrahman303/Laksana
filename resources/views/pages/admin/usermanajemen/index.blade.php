@@ -17,17 +17,15 @@
                         <tr>
                             <th>No</th>
                             <th>Nama</th>
-                            <th>Email</th>
                             <th>Role</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($users as $user)
+                        @foreach ($users as $user)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $user->name }}</td>
-                                <td>{{ $user->email }}</td>
                                 <td>{{ $user->role }}</td>
                                 <td>
                                     <!-- Tombol Edit -->
@@ -43,11 +41,7 @@
                                     </button>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center">Belum ada user</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -67,10 +61,6 @@
                         <div class="mb-3">
                             <label class="form-label">Nama</label>
                             <input type="text" name="name" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Password</label>
@@ -112,10 +102,6 @@
                             <input type="text" name="name" class="form-control" value="{{ $user->name }}" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label">Password (opsional)</label>
                             <input type="password" name="password" class="form-control"
                                 placeholder="Kosongkan jika tidak diganti">
@@ -124,8 +110,10 @@
                             <label class="form-label">Role</label>
                             <select name="role" class="form-select" required>
                                 <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
+                                <option value="operator" {{ $user->role == 'operator' ? 'selected' : '' }}>Operator
+                                </option>
                             </select>
+
                         </div>
                     </div>
                     <div class="modal-footer">

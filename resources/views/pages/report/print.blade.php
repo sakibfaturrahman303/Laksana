@@ -80,12 +80,12 @@
                     <td>{{ $item->keperluan ?? '-' }}</td>
                     <td>{{ $item->tanggal_pinjam ? \Carbon\Carbon::parse($item->tanggal_pinjam)->format('d/m/Y') : '-' }}
                     </td>
-                    <td>{{ $item->user->name ?? '-' }}</td>
-                    <td>Baik</td>
+                    <td>{{ $item->operatorPinjam->name ?? '-' }}</td>
+                    <td>{{ optional($item->borrowingDetails->first())->kondisi_awal ?? '-' }}</td>
                     <td>{{ $item->tanggal_kembali_aktual ? \Carbon\Carbon::parse($item->tanggal_kembali_aktual)->format('d/m/Y') : '-' }}
                     </td>
-                    <td>{{ $item->user->name ?? '-' }}</td>
-                    <td>{{ $item->kondisi ?? '-' }}</td>
+                    <td>{{ $item->operatorKembali->name ?? '-' }}</td>
+                    <td>{{ optional($item->borrowingDetails->first())->kondisi_akhir ?? '-' }}</td>
                     <td>{{ $item->keterangan ?? '-' }}</td>
                 </tr>
             @endforeach

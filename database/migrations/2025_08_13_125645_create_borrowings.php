@@ -13,17 +13,20 @@ return new class extends Migration
     {
        Schema::create('borrowings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('operator_pinjam');
+            $table->unsignedBigInteger('operator_kembali')->nullable();
             $table->string('nama_peminjam');
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali_rencana');
             $table->date('tanggal_kembali_aktual')->nullable();
             $table->string('keperluan');
-            $table->string('keterangan')->nullable();
+            $table->text('catatan')->nullable();
+
             $table->string('status')->default('dipinjam'); // 'dipinjam', 'selesai',
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('operator_pinjam')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('operator_kembali')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

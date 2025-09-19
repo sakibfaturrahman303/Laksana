@@ -8,13 +8,22 @@ use Illuminate\Http\Request;
 
 class ToolController extends Controller
 {
-    public function index()
-    {
-        $category = Category::all();
-        $tools = Tool::with('category')->get(); // eager load category
+public function index()
+{
+    $category = Category::orderBy('nama_kategori', 'asc')->get();
 
-        return view('pages.tools.index', compact('category', 'tools'));
-    }
+    $tools = Tool::with('category')
+        ->join('categories', 'tools.category_id', '=', 'categories.id')
+        ->orderBy('categories.nama_kategori', 'asc')
+        ->orderBy('tools.merk', 'asc')
+        ->orderBy('tools.nama_alat', 'asc')
+        ->select('tools.*') // ambil hanya kolom tools supaya ga bentrok
+        ->get();
+
+    return view('pages.tools.index', compact('category', 'tools'));
+}
+
+
 
     public function store(Request $request)
     {

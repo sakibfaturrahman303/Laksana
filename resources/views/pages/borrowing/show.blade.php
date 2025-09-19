@@ -11,21 +11,7 @@
                 <a href="{{ route('borrowing.index') }}" class="btn btn-secondary">
                     <i class="bx bx-arrow-back"></i>
                 </a>
-
                 <h5 class="mb-0 text-center flex-grow-1">Informasi Detail Peminjam</h5>
-
-                <div>
-                    @if ($borrowingDetails->status == 'dipinjam')
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalKembaliPeminjaman">
-                            <i class="bx bx-check"></i>
-                        </button>
-                    @else
-                        <a class="btn btn-info" target="_blank"
-                            href="{{ route('borrowing.strukPengembalian', $borrowingDetails->id) }}">
-                            <i class="bx bx-calendar-week"></i>
-                        </a>
-                    @endif
-                </div>
             </div>
         </div>
 
@@ -88,9 +74,6 @@
             </div>
         </div>
     </div>
-
-
-
 
     @push('scripts')
         <script>

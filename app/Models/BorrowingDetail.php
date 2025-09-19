@@ -14,6 +14,8 @@ class BorrowingDetail extends Model
         'jumlah_pinjam',
         'kondisi_awal',
         'kondisi_akhir',
+        'keterangan_awal',
+        'keterangan_akhir',
     ];
 
     public function borrowing()

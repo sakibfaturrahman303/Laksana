@@ -24,18 +24,18 @@ Route::group(['middleware' => 'auth'], function () {
    
     //    hanya admin yang bisa akses
     Route::middleware(['role:admin'])->group(function () {
-        Route::resource('category', CategoryController::class)
-        ->except(['create', 'edit']);
-
+        
         Route::resource('users', UserController::class)
         ->except(['create','show', 'edit']);
         Route::get('users/roles', [UserController::class, 'roles'])->name('users.roles');
-
+        
     });
-
+    
     // semua user bisa akses
     Route::resource('tools', ToolController::class)
-        ->except(['create', 'edit']);
+    ->except(['create', 'edit']);
+    Route::resource('category', CategoryController::class)
+    ->except(['create', 'edit']);
 
     Route::get('borrowing', [BorrowingController::class, 'index'])->name('borrowing.index');
     Route::get('borrowing/create', [BorrowingController::class, 'create'])->name('borrowing.create');

@@ -20,8 +20,8 @@
                                 <th>Barang</th>
                                 <th>Status</th>
                                 <th>Tanggal Pinjam</th>
-
                                 <th>Tgl Kembali (Aktual)</th>
+                                <th>Operator Pengembalian</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -48,7 +48,7 @@
                                         @php
                                             $badgeClass = match ($borrowing->status) {
                                                 'dipinjam' => 'bg-warning',
-                                                'dikembalikan' => 'bg-success',
+                                                'selesai' => 'bg-success',
                                                 'terlambat' => 'bg-danger',
                                                 default => 'bg-secondary',
                                             };
@@ -67,6 +67,7 @@
                                             ? \Carbon\Carbon::parse($borrowing->tanggal_kembali_aktual)->format('d F Y')
                                             : '-' }}
                                     </td>
+                                    <td>{{ $borrowing->operatorKembali->name ?? '-' }}</td>
                                     <td class="aksi">
                                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#modalHapusPeminjaman{{ $borrowing->id }}">
@@ -125,21 +126,24 @@
         <script>
             $(document).ready(function() {
                 $('#dataTable').DataTable({
-                    responsive: true,
-                    paging: false,
-                    info: false,
-                    ordering: false,
-                    searching: true,
-                    lengthChange: true,
+                    responsive: false, // jangan collapse kolom
+                    scrollX: true, // aktifkan scroll horizontal kalau kolom kebanyakan
+                    autoWidth: false, // biar width menyesuaikan konten
+                    paging: false, // hilangkan pagination
+                    info: false, // hilangkan "Showing 1 to ..."
+                    ordering: false, // nonaktifkan sorting
+                    searching: true, // search tetap ada
+                    lengthChange: true, // dropdown jumlah data
                     language: {
-                        "search": "Cari Peminjaman:",
-                        "emptyTable": "Tidak ada riwayat peminjaman",
+                        "search": "Cari Peminjam:",
+                        "emptyTable": "Belum ada peminjaman",
                         "zeroRecords": "Tidak ada data yang cocok ditemukan",
                         "lengthMenu": "Tampilkan _MENU_ data"
                     },
                     dom: '<"top"lf>t'
                 });
             });
+
 
             // Klik row menuju detail
             document.addEventListener("DOMContentLoaded", function() {
@@ -150,6 +154,24 @@
                         }
                     });
                 });
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (session('success'))
+                    showToast('success', '{{ session('success') }}', 'Sukses');
+                @endif
+
+                @if (session('error'))
+                    showToast('error', '{{ session('error') }}', 'Error');
+                @endif
+
+                @if ($errors->any())
+                    @foreach ($errors->all() as $error)
+                        showToast('error', '{{ $error }}', 'Validasi');
+                    @endforeach
+                @endif
             });
         </script>
     @endpush

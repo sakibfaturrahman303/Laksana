@@ -62,7 +62,7 @@
         <p><strong>Tanggal Pinjam :</strong> {{ \Carbon\Carbon::parse($borrowing->tanggal_pinjam)->format('d F Y') }}
         </p>
         <p><strong>Nama Program :</strong> {{ $borrowing->keperluan }}</p>
-        <p><strong>Operator Peralatan :</strong> {{ $borrowing->user->name ?? '-' }}</p>
+        <p><strong>Operator Peralatan :</strong> {{ $borrowing->operatorPinjam->name ?? '-' }}</p>
     </div>
 
     <table>
@@ -73,7 +73,8 @@
                 <th>MERK</th>
                 <th>JUMLAH</th>
                 <th>TGL. KEMBALI</th>
-                <th>KONDISI</th>
+                <th>KONDISI AWAL</th>
+                <th>KONDISI AKHIR</th>
                 <th>KET</th>
             </tr>
         </thead>
@@ -86,15 +87,16 @@
                     <td>{{ $detail->jumlah_pinjam }}</td>
                     <td>{{ \Carbon\Carbon::parse($borrowing->tanggal_pinjam)->format('d F Y') }}
                     </td>
-                    <td>{{ $detail->borrowing->kondisi ?? '-' }}</td>
-                    <td>{{ $detail->keterangan ?? '-' }}</td>
+                    <td>{{ $detail->kondisi_awal ?? '-' }}</td>
+                    <td>{{ $detail->kondisi_akhir ?? '-' }}</td>
+                    <td>{{ $detail->keterangan_akhir ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
     <div class="footer">
-        <p><strong>Operator Pengembalian :</strong> {{ auth()->user()->name ?? '-' }}</p>
+        <p><strong>Operator Pengembalian :</strong> {{ $borrowing->operatorKembali->name ?? '-' }}</p>
         <p><strong>Catatan :</strong> {{ $borrowing->catatan ?? '-' }}</p>
     </div>
 </body>
