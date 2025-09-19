@@ -39,8 +39,14 @@
             margin-bottom: 10px;
         }
 
-        .info p {
-            margin: 4px 0;
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+
+        .info-label {
+            min-width: 190px;
+            display: inline-block;
         }
 
         .footer {
@@ -60,21 +66,35 @@
     </div>
 
     <div class="info">
-        <p><strong>Nama Peminjam :</strong> {{ $borrowing->nama_peminjam }}</p>
-        <p><strong>Tanggal Pinjam :</strong> {{ \Carbon\Carbon::parse($borrowing->tanggal_pinjam)->format('d/m/Y') }}
-        </p>
-        <p><strong>Tanggal Kembali (Rencana) :</strong>
-            {{ \Carbon\Carbon::parse($borrowing->tanggal_kembali_rencana)->format('d/m/Y') }}</p>
-        <p><strong>Nama Program :</strong> {{ $borrowing->keperluan }}</p>
-        <p><strong>Operator Peralatan :</strong> {{ $borrowing->operatorPinjam->name ?? '-' }}</p>
+        <div class="info-row">
+            <span class="info-label"><strong>Nama Peminjam</strong></span>
+            <span>: {{ $borrowing->nama_peminjam }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><strong>Tanggal Pinjam</strong></span>
+            <span>: {{ \Carbon\Carbon::parse($borrowing->tanggal_pinjam)->format('d/m/Y') }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><strong>Tanggal Kembali (Rencana)</strong></span>
+            <span>: {{ \Carbon\Carbon::parse($borrowing->tanggal_kembali_rencana)->format('d/m/Y') }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><strong>Nama Program</strong></span>
+            <span>: {{ $borrowing->keperluan }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label"><strong>Operator Peralatan</strong></span>
+            <span>: {{ $borrowing->operatorPinjam->name ?? '-' }}</span>
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
                 <th>NO</th>
-                <th>NAMA BARANG</th>
+                <th>KATEGORI</th>
                 <th>MERK</th>
+                <th>NAMA BARANG</th>
                 <th>JUMLAH</th>
                 <th>KONDISI AWAL</th>
                 <th>KETERANGAN</th>
@@ -84,8 +104,9 @@
             @foreach ($borrowing->borrowingDetails as $i => $detail)
                 <tr>
                     <td>{{ $i + 1 }}</td>
-                    <td>{{ $detail->tool->nama_alat ?? '-' }}</td>
+                    <td>{{ $detail->tool->category->nama_kategori ?? '-' }}</td>
                     <td>{{ $detail->tool->merk ?? '-' }}</td>
+                    <td>{{ $detail->tool->nama_alat ?? '-' }}</td>
                     <td>{{ $detail->jumlah_pinjam }}</td>
                     <td>{{ $detail->kondisi_awal ?? '-' }}</td>
                     <td>{{ $detail->keterangan_awal ?? '-' }}</td>

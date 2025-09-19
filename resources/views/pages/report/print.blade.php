@@ -86,7 +86,7 @@
                     </td>
                     <td>{{ $item->operatorKembali->name ?? '-' }}</td>
                     <td>{{ optional($item->borrowingDetails->first())->kondisi_akhir ?? '-' }}</td>
-                    <td>{{ $item->keterangan ?? '-' }}</td>
+                    <td>{{ $item->borrowingDetails->first()->keterangan_akhir ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>

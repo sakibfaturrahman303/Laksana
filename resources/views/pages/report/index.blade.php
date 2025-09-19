@@ -14,48 +14,61 @@
             </div>
 
             <div class="card-body">
-                <!-- Filter -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Dari Tanggal</label>
-                        <input type="date" id="start_date" class="form-control">
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('report.index') }}" id="filterForm">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Dari Tanggal</label>
+                            <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Sampai Tanggal</label>
+                            <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Kategori</label>
+                            <select name="kategori" id="filterKategori" class="form-select">
+                                <option value="">-- Semua --</option>
+                                @foreach ($categories as $cat)
+                                    <option value="{{ $cat->nama_kategori }}"
+                                        {{ request('kategori') == $cat->nama_kategori ? 'selected' : '' }}>
+                                        {{ $cat->nama_kategori }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Nama Alat</label>
+                            <select name="alat" id="filterAlat" class="form-select">
+                                <option value="">-- Semua --</option>
+                                @foreach ($tools as $t)
+                                    <option value="{{ $t->nama_alat }}"
+                                        data-kategori="{{ $t->category->nama_kategori ?? '' }}"
+                                        {{ request('alat') == $t->nama_alat ? 'selected' : '' }}>
+                                        {{ $t->nama_alat }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Sampai Tanggal</label>
-                        <input type="date" id="end_date" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Kategori</label>
-                        <select id="filterKategori" class="form-select">
-                            <option value="">-- Semua --</option>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->nama_kategori }}">{{ $cat->nama_kategori }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Nama Alat</label>
-                        <select id="filterAlat" class="form-select">
-                            <option value="">-- Semua --</option>
-                            @foreach ($tools as $t)
-                                <option value="{{ $t->nama_alat }}">{{ $t->nama_alat }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
 
-                <!-- Tombol Reset Filter -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <button type="button" id="resetFilter" class="btn btn-outline-secondary btn-sm">
-                            <i class="bx bx-refresh"></i> Reset Filter
-                        </button>
+                    <div class="row mb-3">
+                        <div class="col-12 text-end"> {{-- Tambahkan text-end di sini --}}
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bx bx-search"></i> Terapkan Filter
+                            </button>
+                            <a href="{{ route('report.index') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bx bx-refresh"></i> Reset
+                            </a>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <!-- Tabel -->
                 <div class="table-responsive">
-                    <table id="laporanTable" class="table table-striped">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -88,190 +101,38 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Info hasil filter -->
-                <div class="mt-3">
-                    <small class="text-muted" id="filterInfo"></small>
-                </div>
             </div>
-
         </div>
     </div>
 
     @push('scripts')
         <script>
-            $(document).ready(function() {
-                var table = $('#laporanTable').DataTable({
-                    scrollX: false,
-                    paging: true,
-                    pageLength: 25,
-                    lengthMenu: [
-                        [10, 25, 50, 100, -1],
-                        [10, 25, 50, 100, "Semua"]
-                    ],
-                    ordering: true,
-                    searching: true,
-                    info: true,
-                    order: [
-                        [5, 'desc']
-                    ], // Sort by tanggal pinjam descending
-                    language: {
-                        "search": "Cari:",
-                        "emptyTable": "Belum ada data",
-                        "zeroRecords": "Tidak ada data yang cocok ditemukan",
-                        "lengthMenu": "Tampilkan _MENU_ data",
-                        "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                        "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
-                        "infoFiltered": "(difilter dari _MAX_ total data)",
-                        "paginate": {
-                            "first": "Pertama",
-                            "last": "Terakhir",
-                            "next": "Selanjutnya",
-                            "previous": "Sebelumnya"
-                        }
-                    },
-                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>t<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
-                });
+            document.addEventListener('DOMContentLoaded', function() {
+                var kategoriSelect = document.getElementById('filterKategori');
+                var alatSelect = document.getElementById('filterAlat');
 
-                // Hapus filter sebelumnya jika ada
-                if ($.fn.dataTable.ext.search.length > 0) {
-                    $.fn.dataTable.ext.search.length = 0;
+                function filterAlatDropdown() {
+                    var selectedKategori = kategoriSelect.value;
+                    var options = alatSelect.querySelectorAll('option');
+
+                    options.forEach(function(option, index) {
+                        if (index === 0) return; // skip "-- Semua --"
+                        var kategoriOption = option.getAttribute('data-kategori');
+                        if (selectedKategori === "" || kategoriOption === selectedKategori) {
+                            option.style.display = "";
+                        } else {
+                            option.style.display = "none";
+                            option.selected = false; // reset jika tersembunyi
+                        }
+                    });
                 }
 
-                // Semua alat disimpan dalam JS (dari Blade)
-                var allTools = @json($tools);
+                // Jalankan saat kategori berubah
+                kategoriSelect.addEventListener('change', filterAlatDropdown);
 
-                // Custom filter function DataTable
-                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                    if (settings.nTable.id !== 'laporanTable') {
-                        return true;
-                    }
-
-                    var startDate = $('#start_date').val();
-                    var endDate = $('#end_date').val();
-                    var kategori = $('#filterKategori').val();
-                    var alat = $('#filterAlat').val();
-
-                    var tglPinjamStr = data[5]; // Kolom tanggal pinjam
-                    var kategoriRow = data[2] ? data[2].toString().trim() : "";
-                    var alatRow = data[3] ? data[3].toString().trim() : "";
-
-                    // Filter tanggal
-                    if (startDate || endDate) {
-                        var tglPinjam = tglPinjamStr ? new Date(tglPinjamStr) : null;
-                        if (!tglPinjam) return false;
-
-                        if (startDate) {
-                            var start = new Date(startDate);
-                            if (tglPinjam < start) return false;
-                        }
-                        if (endDate) {
-                            var end = new Date(endDate);
-                            if (tglPinjam > end) return false;
-                        }
-                    }
-
-                    // Filter kategori
-                    if (kategori && kategori !== "") {
-                        if (kategoriRow.toLowerCase() !== kategori.toLowerCase()) {
-                            return false;
-                        }
-                    }
-
-                    // Filter alat
-                    if (alat && alat !== "") {
-                        if (alatRow.toLowerCase() !== alat.toLowerCase()) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                });
-
-                // Update info filter
-                function updateFilterInfo() {
-                    var info = [];
-
-                    if ($('#start_date').val()) {
-                        info.push('Dari: ' + $('#start_date').val());
-                    }
-                    if ($('#end_date').val()) {
-                        info.push('Sampai: ' + $('#end_date').val());
-                    }
-                    if ($('#filterKategori').val()) {
-                        info.push('Kategori: ' + $('#filterKategori option:selected').text());
-                    }
-                    if ($('#filterAlat').val()) {
-                        info.push('Alat: ' + $('#filterAlat option:selected').text());
-                    }
-
-                    if (info.length > 0) {
-                        $('#filterInfo').html('Filter aktif: ' + info.join(' | '));
-                    } else {
-                        $('#filterInfo').html('');
-                    }
-                }
-
-                // Event listener untuk semua filter
-                $('#start_date, #end_date, #filterKategori, #filterAlat').on('change keyup', function() {
-                    table.draw();
-                    updateFilterInfo();
-                });
-
-                // Reset filter
-                $('#resetFilter').on('click', function() {
-                    $('#start_date').val('');
-                    $('#end_date').val('');
-                    $('#filterKategori').val('');
-                    $('#filterAlat').val('');
-                    table.draw();
-                    updateFilterInfo();
-
-                    // Reset dropdown alat jadi semua lagi
-                    var alatDropdown = $('#filterAlat');
-                    alatDropdown.empty();
-                    alatDropdown.append('<option value="">-- Semua --</option>');
-                    allTools.forEach(function(tool) {
-                        alatDropdown.append('<option value="' + tool.nama_alat + '">' + tool.nama_alat +
-                            '</option>');
-                    });
-                });
-
-                // Dependent dropdown: filter alat berdasarkan kategori
-                $('#filterKategori').on('change', function() {
-                    var selectedKategori = $(this).val();
-                    var alatDropdown = $('#filterAlat');
-
-                    alatDropdown.empty();
-                    alatDropdown.append('<option value="">-- Semua --</option>');
-
-                    allTools.forEach(function(tool) {
-                        if (selectedKategori === "" || (tool.category && tool.category.nama_kategori ===
-                                selectedKategori)) {
-                            alatDropdown.append('<option value="' + tool.nama_alat + '">' + tool
-                                .nama_alat + '</option>');
-                        }
-                    });
-
-                    $('#filterAlat').val('');
-                    table.draw();
-                    updateFilterInfo();
-                });
-
-                // Initialize filter info
-                updateFilterInfo();
-
-                // Update nomor urut setelah filter
-                table.on('draw', function() {
-                    table.column(0, {
-                        search: 'applied',
-                        order: 'applied'
-                    }).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1;
-                    });
-                });
+                // Jalankan sekali waktu load halaman (biar sinkron dengan request)
+                filterAlatDropdown();
             });
         </script>
     @endpush
-
 @endsection

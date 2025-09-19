@@ -24,11 +24,11 @@
                         <div class="app-brand justify-content-center mb-4">
                             <a href="{{ url('/') }}" class="app-brand-link gap-3">
                                 <!-- Logo TVRI -->
-                                <img src="{{ asset('assets/img/tvri.png') }}" alt="Logo TVRI" class="logo-small">
+                                <img src="{{ secure_asset('assets/img/tvri.png') }}" alt="Logo TVRI" class="logo-small">
                                 <span class="logo-separator">|</span>
 
                                 <!-- Logo Aplikasi -->
-                                <img src="{{ asset('assets/img/laksana.png') }}" alt="Logo App" class="logo-small">
+                                <img src="{{ secure_asset('assets/img/laksana.png') }}" alt="Logo App" class="logo-small">
                             </a>
                         </div>
 

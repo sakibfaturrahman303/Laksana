@@ -46,7 +46,7 @@ class ReportController extends Controller
     }
 
   public function index(Request $request)
-{
+    {
     $query = Borrowing::with(['borrowingDetails.tool.category', 'operatorPinjam', 'operatorKembali'])
                      ->whereIn('status', ['selesai', 'terlambat']);
 
@@ -83,44 +83,45 @@ class ReportController extends Controller
 
     return view('pages.report.index', compact('laporan', 'categories', 'tools'));
 
-}
+    }
 
     public function exportPdf(Request $request)
 {
-    $query = Borrowing::with(['borrowingDetails.tool.category', 'operatorPinjam', 'operatorKembali']);
+    $query = Borrowing::with(['borrowingDetails.tool.category', 'operatorPinjam', 'operatorKembali'])
+                     ->whereIn('status', ['selesai', 'terlambat']);
 
     // Filter tanggal
-    if ($request->start_date && $request->end_date) {
-        $query->whereBetween('tanggal_pinjam', [$request->start_date, $request->end_date]);
+    if ($request->start_date) {
+        $query->where('tanggal_pinjam', '>=', $request->start_date);
+    }
+    if ($request->end_date) {
+        $query->where('tanggal_pinjam', '<=', $request->end_date);
     }
 
-    // Filter status
-    if ($request->status) {
-        $query->where('status', $request->status);
-    }
-
-    // Filter kategori (by nama_kategori)
-    if ($request->filterKategori) {
-        $kategori = $request->filterKategori;
+    // Filter kategori
+    if ($request->kategori) {
+        $kategori = $request->kategori;
         $query->whereHas('borrowingDetails.tool.category', function ($q) use ($kategori) {
             $q->where('nama_kategori', $kategori);
         });
     }
 
-    // Filter nama alat
-    if ($request->filterAlat) {
-        $alat = $request->filterAlat;
+    // Filter alat
+    if ($request->alat) {
+        $alat = $request->alat;
         $query->whereHas('borrowingDetails.tool', function ($q) use ($alat) {
             $q->where('nama_alat', $alat);
         });
     }
 
-    $history = $query->latest()->get();
+    $history = $query->latest('tanggal_pinjam')->get();
 
+    // kalau kosong, export tetap PDF kosong (bukan semua data)
     $pdf = Pdf::loadView('pages.report.print', compact('history'))
               ->setPaper('a4', 'landscape');
 
     return $pdf->stream('laporan-peminjaman.pdf');
 }
+
 
 }

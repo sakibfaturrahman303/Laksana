@@ -63,7 +63,7 @@
     <div class="app-brand demo">
         <a href="{{ url('/') }}" class="app-brand-link d-flex align-items-center">
             <!-- Logo dari public/assets/img -->
-            <img src="{{ asset('assets/img/logo-laksana.png') }}" alt="Logo App" class="app-brand-logo">
+            <img src="{{ secure_asset('assets/img/logo-laksana.png') }}" alt="Logo App" class="app-brand-logo">
 
             <!-- Nama aplikasi -->
             {{-- <span class="app-brand-text demo menu-text fw-bolder ms-2">
