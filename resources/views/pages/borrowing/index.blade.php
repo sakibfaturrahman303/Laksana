@@ -57,7 +57,8 @@
     @foreach ($borrowings as $borrowing)
         <div class="modal fade" id="modalKembaliPeminjaman{{ $borrowing->id }}" tabindex="-1"
             aria-labelledby="modalKembaliPeminjamanLabel{{ $borrowing->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            {{-- ✅ Tambahkan modal-fullscreen-sm-down supaya modal full di layar kecil --}}
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
                 <form action="{{ route('borrowing.return', $borrowing->id) }}" method="POST" class="modal-content">
                     @csrf
                     <div class="modal-header">
@@ -67,55 +68,54 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Nama Alat</th>
-                                    <th>Jumlah Pinjam</th>
-                                    <th>Kondisi Akhir</th>
-                                    <th>Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($borrowing->borrowingDetails as $detail)
-                                    <tr>
-                                        <td>{{ $detail->tool->nama_alat }}</td>
-                                        <td>{{ $detail->jumlah_pinjam }}</td>
-                                        <td>
-                                            <select name="details[{{ $detail->id }}][kondisi_akhir]" class="form-select"
-                                                required>
-                                                <option value="" disabled
-                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) ? '' : 'selected' }}>
-                                                    -- Pilih Kondisi --
-                                                </option>
-                                                <option value="Baik"
-                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Baik' ? 'selected' : '' }}>
-                                                    Baik
-                                                </option>
-                                                <option value="Rusak Ringan"
-                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Rusak Ringan' ? 'selected' : '' }}>
-                                                    Rusak Ringan
-                                                </option>
-                                                <option value="Rusak Berat"
-                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Rusak Berat' ? 'selected' : '' }}>
-                                                    Rusak Berat
-                                                </option>
-                                                <option value="Hilang"
-                                                    {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Hilang' ? 'selected' : '' }}>
-                                                    Hilang
-                                                </option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="details[{{ $detail->id }}][keterangan_akhir]"
-                                                class="form-control" placeholder="Keterangan tambahan"
-                                                value="{{ old("details.$detail->id.keterangan_akhir", $detail->keterangan_akhir) }}">
-                                        </td>
-                                    </tr>
-                                @endforeach
 
-                            </tbody>
-                        </table>
+                        {{-- ✅ Bungkus tabel dengan table-responsive --}}
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-nowrap">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nama Alat</th>
+                                        <th>Jumlah Pinjam</th>
+                                        <th>Kondisi Akhir</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($borrowing->borrowingDetails as $detail)
+                                        <tr>
+                                            <td>{{ $detail->tool->nama_alat }}</td>
+                                            <td>{{ $detail->jumlah_pinjam }}</td>
+                                            <td>
+                                                <select name="details[{{ $detail->id }}][kondisi_akhir]"
+                                                    class="form-select form-select-sm" required>
+                                                    <option value="" disabled
+                                                        {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) ? '' : 'selected' }}>
+                                                        -- Pilih Kondisi --
+                                                    </option>
+                                                    <option value="Baik"
+                                                        {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Baik' ? 'selected' : '' }}>
+                                                        Baik</option>
+                                                    <option value="Rusak Ringan"
+                                                        {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Rusak Ringan' ? 'selected' : '' }}>
+                                                        Rusak Ringan</option>
+                                                    <option value="Rusak Berat"
+                                                        {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Rusak Berat' ? 'selected' : '' }}>
+                                                        Rusak Berat</option>
+                                                    <option value="Hilang"
+                                                        {{ old("details.$detail->id.kondisi_akhir", $detail->kondisi_akhir) == 'Hilang' ? 'selected' : '' }}>
+                                                        Hilang</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="details[{{ $detail->id }}][keterangan_akhir]"
+                                                    class="form-control form-control-sm" placeholder="Keterangan tambahan"
+                                                    value="{{ old("details.$detail->id.keterangan_akhir", $detail->keterangan_akhir) }}">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
 
                         <div class="mb-3">
                             <label for="catatan" class="form-label">Catatan Pengembalian</label>
@@ -131,6 +131,7 @@
             </div>
         </div>
     @endforeach
+
 
 
     @push('scripts')

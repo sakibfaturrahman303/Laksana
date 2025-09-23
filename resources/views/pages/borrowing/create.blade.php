@@ -20,6 +20,40 @@
                 padding-top: 5px;
             }
         }
+
+        /* ✅ Supaya input gampang dipencet */
+        #table-alat td .input-mobile {
+            min-width: 250px;
+            /* biar nggak gepeng */
+            width: 100%;
+        }
+
+        /* Mobile Friendly */
+        @media (max-width: 768px) {
+            #table-alat td .input-mobile {
+                display: block;
+                width: 100%;
+                min-width: 200px;
+                margin-bottom: 5px;
+            }
+
+            #table-alat {
+                font-size: 14px;
+            }
+        }
+
+        /* Rapiin posisi search & filter */
+        #customSearch {
+            flex: 1;
+        }
+
+        #customSearch input {
+            max-width: 250px;
+        }
+
+        .dataTables_length {
+            margin-bottom: 10px;
+        }
     </style>
 @endpush
 
@@ -91,8 +125,8 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered" id="table-alat">
-                                <thead>
+                            <table class="table table-bordered align-middle text-nowrap" id="table-alat">
+                                <thead class="table-light">
                                     <tr>
                                         <th>No</th>
                                         <th>Kode</th>
@@ -100,15 +134,14 @@
                                         <th>Nama</th>
                                         <th>Jumlah Tersedia</th>
                                         <th>Jumlah Pinjam</th>
-                                        <th>Kondisi Awal</th>
-                                        <th>Keterangan</th>
+                                        <th class="w-25">Kondisi Awal</th>
+                                        <th class="w-25">Keterangan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
-
                                 <tbody>
                                     <tr>
-                                        <td colspan="5" class="text-center">Belum ada alat dipilih.</td>
+                                        <td colspan="9" class="text-center">Belum ada alat dipilih.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -122,6 +155,7 @@
                     </div>
                 </div>
 
+
                 <!-- Submit -->
                 <div class="card">
                     <div class="card-body text-center">
@@ -134,7 +168,7 @@
 
     <!-- Modal Pilih Alat -->
     <div class="modal fade" id="modalAlat" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Pilih Alat yang akan dipinjam</h5>
@@ -201,81 +235,94 @@
         <script>
             let alatDipilih = [];
 
-            function tambahAlat(id, kode, nama, merk, tersedia) {
-                if (alatDipilih.find(a => a.id == id)) {
-                    $('#modalAlat').modal('hide');
-                    return;
-                }
-                alatDipilih.push({
-                    id,
-                    kode,
-                    nama,
-                    merk,
-                    tersedia,
-                    jumlah: 1
-                });
-                renderTableAlat();
-                $('#modalAlat').modal('hide');
-            }
-
-            function hapusAlat(id) {
-                alatDipilih = alatDipilih.filter(a => a.id != id);
-                renderTableAlat();
-            }
-
-            function updateJumlah(id, val) {
-                let alat = alatDipilih.find(a => a.id == id);
-                if (alat) {
-                    alat.jumlah = Math.max(1, Math.min(alat.tersedia, parseInt(val) || 1));
-                    renderTableAlat();
-                }
-            }
-
+            // 🔹 Render tabel daftar alat terpilih
             function renderTableAlat() {
                 let tbody = $('#table-alat tbody');
                 tbody.empty();
+
                 if (alatDipilih.length === 0) {
                     tbody.append('<tr><td colspan="9" class="text-center">Belum ada alat dipilih.</td></tr>');
                 } else {
                     alatDipilih.forEach((alat, idx) => {
                         tbody.append(`
-                <tr>
-                    <td>${idx+1}</td>
-                    <td>
-                        <input type="hidden" name="tools[${idx}][tool_id]" value="${alat.id}">
-                        ${alat.kode}
-                    </td>
-                    <td>${alat.nama}</td>
-                    <td>${alat.merk}</td>
-                    <td>${alat.tersedia}</td>
-                    <td>
-                        <input type="number" name="tools[${idx}][jumlah_pinjam]" class="form-control" 
-                            min="1" max="${alat.tersedia}" value="${alat.jumlah}" 
-                            onchange="updateJumlah(${alat.id}, this.value)">
-                    </td>
-                    <td>
-                        <input type="text" name="tools[${idx}][kondisi_awal]" class="form-control"
-                            placeholder="Masukkan kondisi awal" required>
-                    </td>
-                    <td>
-                        <input type="text" name="tools[${idx}][keterangan_awal]" class="form-control"
-                            placeholder="Masukkan keterangan (opsional)">
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="hapusAlat(${alat.id})">Hapus</button>
-                    </td>
-                </tr>
-            `);
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>
+                            <input type="hidden" name="tools[${idx}][tool_id]" value="${alat.id}">
+                            ${alat.kode}
+                        </td>
+                        <td>${alat.merk}</td>
+                        <td>${alat.nama}</td>
+                        <td>${alat.tersedia}</td>
+                        <td>
+                            <input type="number" name="tools[${idx}][jumlah_pinjam]" 
+                                class="form-control form-control-sm"
+                                min="1" max="${alat.tersedia}" value="${alat.jumlah}" 
+                                onchange="updateJumlah(${alat.id}, this.value)">
+                        </td>
+                        <td>
+                            <input type="text" name="tools[${idx}][kondisi_awal]" 
+                                class="form-control form-control-sm input-mobile"
+                                placeholder="Masukkan kondisi awal" required>
+                        </td>
+                        <td>
+                            <input type="text" name="tools[${idx}][keterangan_awal]" 
+                                class="form-control form-control-sm input-mobile"
+                                placeholder="Masukkan keterangan (opsional)">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" 
+                                onclick="hapusAlat(${alat.id})">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
                     });
                 }
             }
-            $(function() {
-                alatDipilih = [];
-                renderTableAlat();
-            });
-        </script>
 
-        <script>
+            // 🔹 Tambah alat dari modal ke daftar
+            function tambahAlat(id, kode, nama, merk, tersedia) {
+                let existing = alatDipilih.find(a => a.id === id);
+                if (existing) {
+                    showToast('warning', 'Alat ini sudah ditambahkan', 'Peringatan');
+                    return;
+                }
+
+                alatDipilih.push({
+                    id: id,
+                    kode: kode,
+                    nama: nama,
+                    merk: merk,
+                    tersedia: tersedia,
+                    jumlah: 1
+                });
+
+                renderTableAlat();
+                $('#modalAlat').modal('hide'); // Tutup modal
+            }
+
+            // 🔹 Update jumlah pinjam
+            function updateJumlah(id, value) {
+                let alat = alatDipilih.find(a => a.id === id);
+                if (alat) {
+                    let val = parseInt(value);
+                    if (val > 0 && val <= alat.tersedia) {
+                        alat.jumlah = val;
+                    } else {
+                        alat.jumlah = 1; // fallback
+                    }
+                }
+            }
+
+            // 🔹 Hapus alat dari daftar
+            function hapusAlat(id) {
+                alatDipilih = alatDipilih.filter(a => a.id !== id);
+                renderTableAlat();
+            }
+
+            // 🔹 Notifikasi toast dari session / validasi
             document.addEventListener('DOMContentLoaded', function() {
                 @if (session('success'))
                     showToast('success', '{{ session('success') }}', 'Sukses');
@@ -291,9 +338,8 @@
                     @endforeach
                 @endif
             });
-        </script>
 
-        <script>
+            // 🔹 DataTable init
             $(document).ready(function() {
                 var table = $('#dataTable').DataTable({
                     responsive: false,
@@ -324,11 +370,15 @@
                         .draw();
                 });
 
-                // 🔧 Fix header tabel mengecil di dalam modal
+                // Fix header tabel di dalam modal
                 $('#modalAlat').on('shown.bs.modal', function() {
                     table.columns.adjust().draw();
                 });
+
+                // Init kosong
+                renderTableAlat();
             });
         </script>
     @endpush
+
 @endsection
